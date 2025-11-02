@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>ข้อมูลผู้มีสิทธิเลือกตั้ง</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --dark-color: #343a40;
+        }
+        body {
+            font-family: 'Prompt', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #202124;
+        }
+        
+        /* สไตล์สำหรับหน้าล็อกอิน */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .login-form h4 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .login-button:hover {
+            background: #0056b3;
+        }
+
+        .voters-container {
+            max-width: 1200px;
+            margin: 32px auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+            border-top: 5px solid var(--primary-color);
+            border-bottom: 5px solid var(--primary-color);
+        }
+        .voters-header {
+            border-bottom: 1px solid #dadce0;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .voters-title {
+            font-size: 24px;
+            font-weight: 500;
+            margin: 8px 0;
+            color: var(--primary-color);
+        }
+        .voters-description {
+            font-size: 16px;
+            color: #555;
+            margin-top: 0;
+        }
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .summary-card {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .summary-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .summary-item:hover {
+            transform: translateY(-3px);
+            background-color: #e9ecef;
+        }
+        .summary-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .summary-item.active .summary-label,
+        .summary-item.active .summary-value {
+            color: white;
+        }
+        .summary-label {
+            font-size: 14px;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        .summary-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .add-button {
+            padding: 10px 20px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
+        .voters-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .voters-table th,
+        .voters-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .voters-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        .voters-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .status-voted {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+        .status-not-voted {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-buttons button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .pagination-buttons button:hover {
+            background-color: #e9ecef;
+        }
+        .pagination-buttons button:disabled {
+            background-color: #f1f1f1;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .pagination-select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .action-buttons button {
+            padding: 6px 12px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .edit-button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--dark-color);
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            padding: 8px 0;
+        }
+        .bottom-nav .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .bottom-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            text-align: center;
+            flex: 1;
+            padding: 6px 0;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+        .bottom-nav a.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .bottom-nav a.disable {
+            color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .bottom-nav a i {
+            display: block;
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        .bottom-nav a span {
+            font-size: 11px;
+            line-height: 1.2;
+        }
+        .candidate-image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .image-url-input {
+            margin-top: 10px;
+        }
+        @media (max-width: 768px) {
+            .voters-container {
+                margin: 16px 12px;
+                padding: 16px;
+                width: calc(100% - 24px);
+            }
+            .voters-title {
+                font-size: 20px;
+            }
+            .voters-description {
+                font-size: 14px;
+            }
+            .summary-card {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .summary-item {
+                padding: 10px;
+            }
+            .summary-label {
+                font-size: 13px;
+            }
+            .summary-value {
+                font-size: 15px;
+            }
+            .voters-table th,
+            .voters-table td {
+                padding: 8px;
+                font-size: 13px;
+            }
+            .search-input, .pagination-select {
+                font-size: 13px;
+            }
+            .add-button {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            .action-buttons button {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+            .bottom-nav {
+                display: block;
+            }
+            .tab-button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+        @media (max-width: 400px) {
+            .voters-container {
+                margin: 12px 8px;
+                padding: 12px;
+            }
+            .voters-title {
+                font-size: 18px;
+            }
+            .voters-description {
+                font-size: 13px;
+            }
+            .summary-card {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .summary-item {
+                padding: 8px;
+            }
+            .summary-label {
+                font-size: 12px;
+            }
+            .summary-value {
+                font-size: 14px;
+            }
+            .voters-table th,
+            .voters-table td {
+                padding: 6px;
+                font-size: 12px;
+            }
+            .search-input, .pagination-select {
+                font-size: 12px;
+            }
+            .add-button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            .action-buttons button {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            .bottom-nav a i {
+                font-size: 20px;
+            }
+            .bottom-nav a span {
+                font-size: 10px;
+            }
+            .tab-button {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- หน้าล็อกอินสำหรับผู้ดูแล -->
+    <div id="adminLogin" class="login-overlay">
+        <div class="login-form">
+            <h4>ล็อกอินผู้ดูแลระบบ</h4>
+            <p style="color: #666; margin-bottom: 20px; font-size: 14px;">
+                กรุณาล็อกอินเพื่อจัดการข้อมูลพนักงานและผู้สมัคร
+            </p>
+            <input type="password" id="adminPassword" class="login-input" placeholder="กรอกรหัสผ่านผู้ดูแล">
+            <button class="login-button" onclick="adminLogin()">ล็อกอิน</button>
+            <div id="loginError" style="color: red; margin-top: 10px; display: none;">
+                รหัสผ่านไม่ถูกต้อง
+            </div>
+        </div>
+    </div>
+
+    <div id="votersSection" class="voters-container" style="display: none;">
+        <nav class="bottom-nav">
+            <div class="nav-items">
+                <a href="#" class="disable">
+                    <i class="fas fa-cog"></i>
+                    <span>ตั้งค่า</span>
+                </a>
+                <a href="voters.html" class="active">
+                    <i class="fas fa-users"></i>
+                    <span>พนักงาน</span>
+                </a>
+                <a href="#" class="disable">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>แดชบอร์ด</span>
+                </a>
+                <a href="index.html" class="disable">
+                    <i class="fas fa-file-alt"></i>
+                    <span>แบบฟอร์ม</span>
+                </a>
+                <a href="report.html" class="disable">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>รายงาน</span>
+                </a>
+                <a href="reset.html">
+                    <i class="fas fa-undo"></i>
+                    <span>รีเซ็ต</span>
+                </a>
+            </div>
+        </nav>
+        <div class="voters-header">
+            <center>
+                <h4 style="color: var(--primary-color);">ข้อมูลผู้มีสิทธิเลือกตั้ง</h4>
+                <div class="voters-description">
+                    บริษัท เชียงใหม่โฟรเซ่นฟูดส์ จำกัด(มหาชน) Cm2
+                </div>
+            </center>
+        </div>
+        
+        <!-- แท็บสำหรับสลับระหว่างพนักงานและผู้สมัคร -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('employees')">จัดการพนักงาน</button>
+                <button class="tab-button" onclick="switchTab('candidates')">จัดการผู้สมัคร</button>
+            </div>
+        </div>
+        
+        <!-- แท็บจัดการพนักงาน -->
+        <div id="employees-tab" class="tab-content active">
+            <div class="summary-card">
+                <div class="summary-item" id="totalVotersCard" onclick="filterTable('all')">
+                    <div class="summary-label">ผู้มีสิทธิ์ทั้งหมด</div>
+                    <div class="summary-value" id="totalVotersCount">กำลังโหลด...</div>
+                </div>
+                <div class="summary-item" id="votedCard" onclick="filterTable('voted')">
+                    <div class="summary-label">ผู้ที่มาใช้สิทธิ์</div>
+                    <div class="summary-value" id="votedCount">กำลังโหลด...</div>
+                </div>
+                <div class="summary-item" id="notVotedCard" onclick="filterTable('not-voted')">
+                    <div class="summary-label">ผู้ที่ไม่มาใช้สิทธิ์</div>
+                    <div class="summary-value" id="notVotedCount">กำลังโหลด...</div>
+                </div>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาด้วยรหัสพนักงาน, ชื่อ-สกุล, หรือแผนก">
+                <button class="add-button" data-bs-toggle="modal" data-bs-target="#employeeModal">เพิ่มพนักงาน</button>
+            </div>
+            <table class="voters-table">
+                <thead>
+                    <tr>
+                        <th>รหัสพนักงาน</th>
+                        <th>ชื่อ-สกุล</th>
+                        <th>แผนก</th>
+                        <th>สถานะการใช้สิทธิ์</th>
+                        <th>สถานะพนักงาน</th>
+                        <th>การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="votersTableBody"></tbody>
+            </table>
+            <div class="pagination-container">
+                <div class="pagination-select">
+                    <select id="rowsPerPage" onchange="updateRowsPerPage()">
+                        <option value="10">10 แถว</option>
+                        <option value="20">20 แถว</option>
+                        <option value="50">50 แถว</option>
+                        <option value="all">ทั้งหมด</option>
+                    </select>
+                </div>
+                <div class="pagination-buttons">
+                    <button id="prevPage" onclick="changePage(-1)">ก่อนหน้า</button>
+                    <button id="nextPage" onclick="changePage(1)">ถัดไป</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- แท็บจัดการผู้สมัคร -->
+        <div id="candidates-tab" class="tab-content">
+            <div class="search-container">
+                <input type="text" class="search-input" id="candidateSearchInput" placeholder="ค้นหาด้วยชื่อผู้สมัคร, หมายเลข, หรือพรรค">
+                <button class="add-button" data-bs-toggle="modal" data-bs-target="#candidateModal">เพิ่มผู้สมัคร</button>
+            </div>
+            <table class="voters-table">
+                <thead>
+                    <tr>
+                        <th>หมายเลข</th>
+                        <th>รูปภาพ</th>
+                        <th>ชื่อ-สกุล</th>
+                        <th>พรรค</th>
+                        <th>คะแนน</th>
+                        <th>การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="candidatesTableBody"></tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <h6 class="text-lg font-semibold" style="font-size: 12px;color:black;">
+                <i class="far fa-copyright"></i> 2025 จัดทำโดย คณะสวัสดิการโรงงานCm2
+            </h6>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Employee -->
+    <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="employeeModalLabel">เพิ่ม/แก้ไขพนักงาน</h5>
+                    <button type="button" id="btnmodalclose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="employeeForm">
+                        <div class="mb-3">
+                            <label for="employeeId" class="form-label">รหัสพนักงาน</label>
+                            <input type="text" class="form-control" id="employeeId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeName" class="form-label">ชื่อ-สกุล</label>
+                            <input type="text" class="form-control" id="employeeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeDepartment" class="form-label">แผนก</label>
+                            <input type="text" class="form-control" id="employeeDepartment" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeStatus" class="form-label">สถานะพนักงาน</label>
+                            <select class="form-control" id="employeeStatus" required>
+                                <option value="ปฏิบัติงาน">ปฏิบัติงาน</option>
+                                <option value="ลาออก">ลาออก</option>
+                                <option value="พักงาน">พักงาน</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    <button type="button" class="btn btn-primary" id="saveEmployee">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Candidate -->
+    <div class="modal fade" id="candidateModal" tabindex="-1" aria-labelledby="candidateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="candidateModalLabel">เพิ่ม/แก้ไขผู้สมัคร</h5>
+                    <button type="button" id="candidateModalClose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="candidateForm">
+                        <div class="mb-3">
+                            <label for="candidateNumber" class="form-label">หมายเลขผู้สมัคร</label>
+                            <input type="text" class="form-control" id="candidateNumber" placeholder="เช่น เบอร์ 1, เบอร์ 2" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="candidateName" class="form-label">ชื่อ-สกุล</label>
+                            <input type="text" class="form-control" id="candidateName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="candidateParty" class="form-label">พรรค</label>
+                            <input type="text" class="form-control" id="candidateParty" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="candidateImageUrl" class="form-label">URL รูปภาพ</label>
+                            <input type="url" class="form-control" id="candidateImageUrl" placeholder="https://example.com/image.jpg">
+                            <img id="candidateImagePreview" class="candidate-image-preview" src="" alt="Preview">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    <button type="button" class="btn btn-primary" id="saveCandidate">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK สำหรับ Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            deleteDoc,
+            collection, 
+            getDocs,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWRIFj6NHeHkXL1bIEbb93lUzaZf8NNmI",
+            authDomain: "fir-crud-b7960.firebaseapp.com",
+            projectId: "fir-crud-b7960",
+            storageBucket: "fir-crud-b7960.firebasestorage.app",
+            messagingSenderId: "32150734884",
+            appId: "1:32150734884:web:58b01e9f4ba0d9b9a170b1",
+            measurementId: "G-K97E7L101D"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let allVoters = [];
+        let allCandidates = [];
+        let filteredVoters = [];
+        let currentPage = 1;
+        let rowsPerPage = 10;
+        let currentTab = 'employees';
+
+        // ตรวจสอบสถานะการล็อกอิน
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // ล็อกอินแล้ว - แสดงหน้าจัดการ
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('votersSection').style.display = 'block';
+                initializeData();
+            } else {
+                // ยังไม่ล็อกอิน - แสดงหน้าล็อกอิน
+                document.getElementById('adminLogin').style.display = 'flex';
+                document.getElementById('votersSection').style.display = 'none';
+            }
+        });
+
+        // ฟังก์ชันล็อกอินผู้ดูแล
+        window.adminLogin = async function() {
+            const password = document.getElementById('adminPassword').value;
+            const loginError = document.getElementById('loginError');
+            
+            // รหัสผ่านผู้ดูแล (เปลี่ยนเป็นรหัสที่คุณต้องการ)
+            const ADMIN_PASSWORD = "admin123";
+            
+            if (password === ADMIN_PASSWORD) {
+                try {
+                    // ใช้ Email/Password Authentication
+                    // สร้างอีเมลชั่วคราวสำหรับล็อกอิน
+                    await signInWithEmailAndPassword(auth, 'admin@cm2.com', 'admin123');
+                    loginError.style.display = 'none';
+                } catch (error) {
+                    console.error('Login error:', error);
+                    // ถ้าไม่มี user นี้ในระบบ ให้สร้างใหม่
+                    if (error.code === 'auth/user-not-found') {
+                        // ในกรณีจริงควรสร้าง user ผ่าน Cloud Functions หรือ Console
+                        // แต่สำหรับตอนนี้ให้ใช้ Anonymous Authentication แทน
+                        alert('ระบบกำลังเตรียมการ กรุณาติดต่อผู้ดูแลระบบ');
+                    } else {
+                        loginError.textContent = 'เกิดข้อผิดพลาดในการล็อกอิน';
+                        loginError.style.display = 'block';
+                    }
+                }
+            } else {
+                loginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
+                loginError.style.display = 'block';
+            }
+        };
+
+        // ฟังก์ชันเริ่มต้นข้อมูล
+        async function initializeData() {
+            await renderVoters();
+            await renderCandidates();
+            setupSearch();
+            setupModal();
+            setupCandidateModal();
+        }
+
+        // ฟังก์ชันสลับแท็บ
+        window.switchTab = function(tabName) {
+            currentTab = tabName;
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        };
+
+        // ฟังก์ชันแสดงข้อมูลผู้มีสิทธิเลือกตั้ง
+        async function renderVoters(filter = 'all') {
+            const tableBody = document.getElementById('votersTableBody');
+            const totalVotersCountEl = document.getElementById('totalVotersCount');
+            const votedCountEl = document.getElementById('votedCount');
+            const notVotedCountEl = document.getElementById('notVotedCount');
+            const totalVotersCard = document.getElementById('totalVotersCard');
+            const votedCard = document.getElementById('votedCard');
+            const notVotedCard = document.getElementById('notVotedCard');
+
+            // รีเซ็ตสถานะ active
+            totalVotersCard.classList.remove('active');
+            votedCard.classList.remove('active');
+            notVotedCard.classList.remove('active');
+            if (filter === 'all') totalVotersCard.classList.add('active');
+            if (filter === 'voted') votedCard.classList.add('active');
+            if (filter === 'not-voted') notVotedCard.classList.add('active');
+
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center">กำลังโหลด...</td></tr>';
+
+            try {
+                // ดึงข้อมูลพนักงาน
+                const employeesSnapshot = await getDocs(collection(db, 'employees'));
+                const employees = {};
+                employeesSnapshot.forEach(doc => {
+                    employees[doc.id] = doc.data();
+                });
+
+                // ดึงข้อมูลการลงคะแนน
+                const votesSnapshot = await getDocs(collection(db, 'electionResponses'));
+                const votes = {};
+                votesSnapshot.forEach(doc => {
+                    votes[doc.id] = doc.data();
+                });
+
+                allVoters = [];
+                
+                // สร้าง array ของพนักงาน
+                for (const employeeId in employees) {
+                    const employee = employees[employeeId];
+                    const hasVoted = votes.hasOwnProperty(employeeId);
+                    allVoters.push({
+                        id: employeeId,
+                        name: employee.name || 'ไม่ระบุ',
+                        department: employee.department || 'ไม่ระบุ',
+                        status: employee.status || 'ปฏิบัติงาน',
+                        voted: hasVoted ? 'มาใช้สิทธิ์' : 'ไม่มาใช้สิทธิ์'
+                    });
+                }
+
+                // อัปเดตจำนวน
+                const totalVoters = allVoters.length;
+                const votedCount = allVoters.filter(v => v.voted === 'มาใช้สิทธิ์').length;
+                const notVotedCount = totalVoters - votedCount;
+                totalVotersCountEl.textContent = totalVoters;
+                votedCountEl.textContent = votedCount;
+                notVotedCountEl.textContent = notVotedCount;
+
+                // กรองตามสถานะ
+                filteredVoters = allVoters;
+                if (filter === 'voted') {
+                    filteredVoters = allVoters.filter(v => v.voted === 'มาใช้สิทธิ์');
+                } else if (filter === 'not-voted') {
+                    filteredVoters = allVoters.filter(v => v.voted === 'ไม่มาใช้สิทธิ์');
+                }
+
+                // แสดงตาราง
+                renderTable();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            }
+        }
+
+        // ฟังก์ชันแสดงข้อมูลผู้สมัคร
+        async function renderCandidates() {
+            const tableBody = document.getElementById('candidatesTableBody');
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center">กำลังโหลด...</td></tr>';
+
+            try {
+                // ดึงข้อมูลผู้สมัคร
+                const candidatesSnapshot = await getDocs(collection(db, 'candidates'));
+                allCandidates = [];
+
+                candidatesSnapshot.forEach(doc => {
+                    const candidate = doc.data();
+                    allCandidates.push({
+                        id: doc.id,
+                        number: candidate.number || 'ไม่ระบุ',
+                        name: candidate.name || 'ไม่ระบุ',
+                        party: candidate.party || 'ไม่ระบุ',
+                        image: candidate.image || 'https://via.placeholder.com/100x100/007bff/ffffff?text=No+Image',
+                        votes: candidate.votes || 0
+                    });
+                });
+
+                // เรียงลำดับตามหมายเลข
+                allCandidates.sort((a, b) => {
+                    const numA = parseInt(a.number.replace(/\D/g, '')) || 0;
+                    const numB = parseInt(b.number.replace(/\D/g, '')) || 0;
+                    return numA - numB;
+                });
+
+                // แสดงตาราง
+                renderCandidatesTable();
+            } catch (error) {
+                console.error('Error fetching candidates:', error);
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            }
+        }
+
+        // ฟังก์ชันแสดงตารางพนักงาน
+        function renderTable() {
+            const tableBody = document.getElementById('votersTableBody');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+
+            // คำนวณหน้า
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = rowsPerPage === 'all' ? filteredVoters.length : start + parseInt(rowsPerPage);
+            const paginatedVoters = filteredVoters.slice(start, end);
+
+            // อัปเดตปุ่ม
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = end >= filteredVoters.length;
+
+            // แสดงตาราง
+            tableBody.innerHTML = '';
+            if (paginatedVoters.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">ไม่มีข้อมูล</td></tr>';
+                return;
+            }
+
+            paginatedVoters.forEach(voter => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${voter.id}</td>
+                    <td>${voter.name}</td>
+                    <td>${voter.department}</td>
+                    <td class="${voter.voted === 'มาใช้สิทธิ์' ? 'status-voted' : 'status-not-voted'}">${voter.voted}</td>
+                    <td>${voter.status}</td>
+                    <td class="action-buttons">
+                        <button class="edit-button" onclick="editEmployee('${voter.id}')">แก้ไข</button>
+                        <button class="delete-button" onclick="deleteEmployee('${voter.id}')">ลบ</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // ฟังก์ชันแสดงตารางผู้สมัคร
+        function renderCandidatesTable() {
+            const tableBody = document.getElementById('candidatesTableBody');
+            
+            // กรองตามการค้นหา
+            let filteredCandidates = allCandidates;
+            const searchQuery = document.getElementById('candidateSearchInput').value.toLowerCase();
+            if (searchQuery) {
+                filteredCandidates = allCandidates.filter(candidate =>
+                    candidate.name.toLowerCase().includes(searchQuery) ||
+                    candidate.party.toLowerCase().includes(searchQuery) ||
+                    candidate.number.toString().toLowerCase().includes(searchQuery)
+                );
+            }
+
+            tableBody.innerHTML = '';
+            if (filteredCandidates.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">ไม่มีข้อมูล</td></tr>';
+                return;
+            }
+
+            filteredCandidates.forEach(candidate => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${candidate.number}</td>
+                    <td><img src="${candidate.image}" alt="${candidate.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
+                    <td>${candidate.name}</td>
+                    <td>${candidate.party}</td>
+                    <td>${candidate.votes}</td>
+                    <td class="action-buttons">
+                        <button class="edit-button" onclick="editCandidate('${candidate.id}')">แก้ไข</button>
+                        <button class="delete-button" onclick="deleteCandidate('${candidate.id}')">ลบ</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // ฟังก์ชันกรองตารางตามสถานะ
+        window.filterTable = function(status) {
+            currentPage = 1;
+            renderVoters(status);
+        };
+
+        // ฟังก์ชันตั้งค่าการค้นหา
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const tableBody = document.getElementById('votersTableBody');
+                currentPage = 1;
+
+                filteredVoters = allVoters.filter(voter =>
+                    voter.id.toLowerCase().includes(query) ||
+                    voter.name.toLowerCase().includes(query) ||
+                    voter.department.toLowerCase().includes(query)
+                );
+
+                renderTable();
+            });
+
+            const candidateSearchInput = document.getElementById('candidateSearchInput');
+            candidateSearchInput.addEventListener('input', function() {
+                renderCandidatesTable();
+            });
+        }
+
+        // ฟังก์ชันอัปเดตจำนวนแถวต่อหน้า
+        window.updateRowsPerPage = function() {
+            const select = document.getElementById('rowsPerPage');
+            rowsPerPage = select.value;
+            currentPage = 1;
+            renderTable();
+        };
+
+        // ฟังก์ชันเปลี่ยนหน้า
+        window.changePage = function(direction) {
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            renderTable();
+        };
+
+        // ฟังก์ชันตั้งค่า modal พนักงาน
+        function setupModal() {
+            const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
+            const saveButton = document.getElementById('saveEmployee');
+            const employeeIdInput = document.getElementById('employeeId');
+            const modalTitle = document.getElementById('employeeModalLabel');
+
+            saveButton.addEventListener('click', async function() {
+                const id = employeeIdInput.value.trim();
+                const name = document.getElementById('employeeName').value.trim();
+                const department = document.getElementById('employeeDepartment').value.trim();
+                const status = document.getElementById('employeeStatus').value;
+
+                if (!id || !name || !department || !status) {
+                    Swal.fire('ข้อผิดพลาด', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                    return;
+                }
+
+                const employeeData = { 
+                    name, 
+                    department, 
+                    status,
+                    lastUpdated: serverTimestamp()
+                };
+
+                try {
+                    if (employeeIdInput.disabled) {
+                        // แก้ไข
+                        await updateDoc(doc(db, 'employees', id), employeeData);
+                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลพนักงานเรียบร้อย', 'success');
+                        renderVoters();
+                        document.getElementById('btnmodalclose').click();
+                    } else {
+                        // เพิ่ม
+                        const employeeDoc = await getDoc(doc(db, 'employees', id));
+                        if (employeeDoc.exists()) {
+                            Swal.fire('ข้อผิดพลาด', 'รหัสพนักงานนี้มีอยู่แล้ว', 'error');
+                            return;
+                        }
+                        await setDoc(doc(db, 'employees', id), employeeData);
+                        Swal.fire('สำเร็จ', 'เพิ่มพนักงานเรียบร้อย', 'success');
+                        renderVoters();
+                        document.getElementById('btnmodalclose').click();
+                    }
+                } catch (error) {
+                    console.error('Error saving employee:', error);
+                    Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการบันทึก: ' + error.message, 'error');
+                }
+            });
+
+            // รีเซ็ตฟอร์มเมื่อ modal ถูกปิด
+            document.getElementById('employeeModal').addEventListener('hidden.bs.modal', function() {
+                document.getElementById('employeeForm').reset();
+                employeeIdInput.disabled = false;
+                modalTitle.textContent = 'เพิ่มพนักงาน';
+            });
+        }
+
+        // ฟังก์ชันตั้งค่า modal ผู้สมัคร
+        function setupCandidateModal() {
+            const modal = new bootstrap.Modal(document.getElementById('candidateModal'));
+            const saveButton = document.getElementById('saveCandidate');
+            const candidateNumberInput = document.getElementById('candidateNumber');
+            const candidateNameInput = document.getElementById('candidateName');
+            const candidatePartyInput = document.getElementById('candidateParty');
+            const candidateImageUrlInput = document.getElementById('candidateImageUrl');
+            const imagePreview = document.getElementById('candidateImagePreview');
+            const modalTitle = document.getElementById('candidateModalLabel');
+
+            // ตั้งค่าการแสดงตัวอย่างรูปภาพเมื่อกรอก URL
+            candidateImageUrlInput.addEventListener('input', function() {
+                const url = this.value.trim();
+                if (url) {
+                    imagePreview.src = url;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+            });
+
+            saveButton.addEventListener('click', async function() {
+                const number = candidateNumberInput.value.trim();
+                const name = candidateNameInput.value.trim();
+                const party = candidatePartyInput.value.trim();
+                const imageUrl = candidateImageUrlInput.value.trim();
+
+                if (!number || !name || !party) {
+                    Swal.fire('ข้อผิดพลาด', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                    return;
+                }
+
+                // ใช้รูปภาพเริ่มต้นถ้าไม่กรอก URL
+                const finalImageUrl = imageUrl || 'https://via.placeholder.com/200x200/007bff/ffffff?text=No+Image';
+
+                const candidateData = { 
+                    number: number, 
+                    name, 
+                    party, 
+                    image: finalImageUrl,
+                    votes: 0,
+                    lastUpdated: serverTimestamp()
+                };
+
+                try {
+                    if (candidateNumberInput.disabled) {
+                        // แก้ไข - ใช้ ID เดิม
+                        const candidateId = findCandidateIdByNumber(number);
+                        if (candidateId) {
+                            await updateDoc(doc(db, 'candidates', candidateId), candidateData);
+                            Swal.fire('สำเร็จ', 'แก้ไขข้อมูลผู้สมัครเรียบร้อย', 'success');
+                            renderCandidates();
+                            document.getElementById('candidateModalClose').click();
+                        }
+                    } else {
+                        // เพิ่มใหม่ - ตรวจสอบว่าหมายเลขซ้ำหรือไม่
+                        const isDuplicate = allCandidates.some(candidate => candidate.number === number);
+                        if (isDuplicate) {
+                            Swal.fire('ข้อผิดพลาด', 'หมายเลขผู้สมัครนี้มีอยู่แล้ว', 'error');
+                            return;
+                        }
+
+                        // สร้าง document ใหม่
+                        const newCandidateRef = doc(collection(db, 'candidates'));
+                        await setDoc(newCandidateRef, candidateData);
+                        Swal.fire('สำเร็จ', 'เพิ่มผู้สมัครเรียบร้อย', 'success');
+                        renderCandidates();
+                        document.getElementById('candidateModalClose').click();
+                    }
+                } catch (error) {
+                    console.error('Error saving candidate:', error);
+                    Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการบันทึก: ' + error.message, 'error');
+                }
+            });
+
+            // รีเซ็ตฟอร์มเมื่อ modal ถูกปิด
+            document.getElementById('candidateModal').addEventListener('hidden.bs.modal', function() {
+                document.getElementById('candidateForm').reset();
+                candidateNumberInput.disabled = false;
+                modalTitle.textContent = 'เพิ่มผู้สมัคร';
+                imagePreview.style.display = 'none';
+                imagePreview.src = '';
+            });
+        }
+
+        // ฟังก์ชันหา ID ผู้สมัครจากหมายเลข
+        function findCandidateIdByNumber(number) {
+            for (const candidate of allCandidates) {
+                if (candidate.number === number) {
+                    return candidate.id;
+                }
+            }
+            return null;
+        }
+
+        // ฟังก์ชันแก้ไขพนักงาน
+        window.editEmployee = async function(id) {
+            const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
+            const employeeIdInput = document.getElementById('employeeId');
+            const employeeNameInput = document.getElementById('employeeName');
+            const employeeDepartmentInput = document.getElementById('employeeDepartment');
+            const employeeStatusInput = document.getElementById('employeeStatus');
+            const modalTitle = document.getElementById('employeeModalLabel');
+
+            try {
+                const employeeDoc = await getDoc(doc(db, 'employees', id));
+                if (employeeDoc.exists()) {
+                    const data = employeeDoc.data();
+                    employeeIdInput.value = id;
+                    employeeIdInput.disabled = true;
+                    employeeNameInput.value = data.name;
+                    employeeDepartmentInput.value = data.department;
+                    employeeStatusInput.value = data.status;
+                    modalTitle.textContent = 'แก้ไขพนักงาน';
+                    modal.show();
+                }
+            } catch (error) {
+                console.error('Error fetching employee:', error);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลพนักงานได้', 'error');
+            }
+        };
+
+        // ฟังก์ชันลบพนักงาน
+        window.deleteEmployee = async function(id) {
+            Swal.fire({
+                title: 'ยืนยันการลบ',
+                text: 'คุณแน่ใจหรือไม่ว่าต้องการลบพนักงานนี้?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await deleteDoc(doc(db, 'employees', id));
+                        Swal.fire('สำเร็จ', 'ลบพนักงานเรียบร้อย', 'success');
+                        renderVoters();
+                    } catch (error) {
+                        console.error('Error deleting employee:', error);
+                        Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการลบ: ' + error.message, 'error');
+                    }
+                }
+            });
+        };
+
+        // ฟังก์ชันแก้ไขผู้สมัคร
+        window.editCandidate = async function(id) {
+            const modal = new bootstrap.Modal(document.getElementById('candidateModal'));
+            const candidateNumberInput = document.getElementById('candidateNumber');
+            const candidateNameInput = document.getElementById('candidateName');
+            const candidatePartyInput = document.getElementById('candidateParty');
+            const candidateImageUrlInput = document.getElementById('candidateImageUrl');
+            const imagePreview = document.getElementById('candidateImagePreview');
+            const modalTitle = document.getElementById('candidateModalLabel');
+
+            try {
+                const candidateDoc = await getDoc(doc(db, 'candidates', id));
+                if (candidateDoc.exists()) {
+                    const data = candidateDoc.data();
+                    candidateNumberInput.value = data.number;
+                    candidateNumberInput.disabled = true;
+                    candidateNameInput.value = data.name;
+                    candidatePartyInput.value = data.party;
+                    candidateImageUrlInput.value = data.image;
+                    imagePreview.src = data.image;
+                    imagePreview.style.display = 'block';
+                    modalTitle.textContent = 'แก้ไขผู้สมัคร';
+                    modal.show();
+                }
+            } catch (error) {
+                console.error('Error fetching candidate:', error);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลผู้สมัครได้', 'error');
+            }
+        };
+
+        // ฟังก์ชันลบผู้สมัคร
+        window.deleteCandidate = async function(id) {
+            Swal.fire({
+                title: 'ยืนยันการลบ',
+                text: 'คุณแน่ใจหรือไม่ว่าต้องการลบผู้สมัครนี้?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await deleteDoc(doc(db, 'candidates', id));
+                        Swal.fire('สำเร็จ', 'ลบผู้สมัครเรียบร้อย', 'success');
+                        renderCandidates();
+                    } catch (error) {
+                        console.error('Error deleting candidate:', error);
+                        Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการลบ: ' + error.message, 'error');
+                    }
+                }
+            });
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
